@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PayNest Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <header class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <h1 class="text-2xl font-bold text-gray-900">PayNest Dashboard</h1>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div id="loading" class="flex items-center justify-center py-20">
+      <div class="text-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p class="text-gray-600">Loading payment dashboard...</p>
+      </div>
+    </div>
+
+    <div id="error" class="hidden bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+      <p class="text-red-600 mb-2">Unable to connect to payment API</p>
+      <p class="text-sm text-gray-500">Make sure the backend server is running on port 3000</p>
+    </div>
+
+    <div id="content" class="hidden">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+          <p class="text-sm text-gray-500 mb-1">Total Transactions</p>
+          <p id="totalTransactions" class="text-3xl font-bold text-gray-900">-</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+          <p class="text-sm text-gray-500 mb-1">Total Amount</p>
+          <p id="totalAmount" class="text-3xl font-bold text-gray-900">-</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+          <p class="text-sm text-gray-500 mb-1">Net Amount</p>
+          <p id="netAmount" class="text-3xl font-bold text-green-600">-</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+          <p class="text-sm text-gray-500 mb-1">Success Rate</p>
+          <p id="successRate" class="text-3xl font-bold text-blue-600">-</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-lg font-semibold mb-4">Transactions by Gateway</h2>
+          <div id="byGateway" class="space-y-3"></div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-lg font-semibold mb-4">Supported Gateways</h2>
+          <div id="gateways" class="grid grid-cols-2 gap-2"></div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-lg font-semibold mb-4">Quick Stats</h2>
+          <div class="space-y-3">
+            <div class="flex justify-between">
+              <span class="text-sm text-gray-500">Refunds</span>
+              <span id="refunds" class="text-sm font-medium text-red-600">-</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-sm text-gray-500">Gateways Active</span>
+              <span id="activeGateways" class="text-sm font-medium">-</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b flex justify-between items-center">
+          <h2 class="text-lg font-semibold">Recent Transactions</h2>
+          <select id="filter" class="px-3 py-1 border rounded text-sm">
+            <option value="all">All</option>
+            <option value="pending">Pending</option>
+            <option value="completed">Completed</option>
+            <option value="failed">Failed</option>
+          </select>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Gateway</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+              </tr>
+            </thead>
+            <tbody id="transactions" class="divide-y divide-gray-200"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const API_URL = window.location.origin.replace(/:\d+$/, ':3000');
+    let allTransactions = [];
+
+    const statusColors = {
+      pending: 'bg-yellow-100 text-yellow-800',
+      completed: 'bg-green-100 text-green-800',
+      failed: 'bg-red-100 text-red-800',
+      refunded: 'bg-blue-100 text-blue-800',
+      partially_refunded: 'bg-purple-100 text-purple-800',
+    };
+
+    async function fetchData() {
+      try {
+        const [txRes, analyticsRes, gatewaysRes] = await Promise.all([
+          fetch(`${API_URL}/api/v1/transactions?limit=50`),
+          fetch(`${API_URL}/api/v1/analytics/summary`),
+          fetch(`${API_URL}/api/v1/health/gateways`),
+        ]);
+
+        if (!txRes.ok || !analyticsRes.ok) throw new Error('API error');
+
+        const txData = await txRes.json();
+        const analytics = await analyticsRes.json();
+        const gateways = await gatewaysRes.json();
+
+        allTransactions = txData.data || [];
+        renderAnalytics(analytics);
+        renderGateways(gateways);
+        renderTransactions(allTransactions);
+
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('content').classList.remove('hidden');
+      } catch (error) {
+        console.error('Failed to fetch:', error);
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('error').classList.remove('hidden');
+      }
+    }
+
+    function renderAnalytics(data) {
+      document.getElementById('totalTransactions').textContent = data.totalTransactions || 0;
+      document.getElementById('totalAmount').textContent = `$${(data.totalAmount || 0).toFixed(2)}`;
+      document.getElementById('netAmount').textContent = `$${(data.netAmount || 0).toFixed(2)}`;
+      document.getElementById('successRate').textContent = `${(data.successRate || 0).toFixed(1)}%`;
+      document.getElementById('refunds').textContent = `$${(data.totalRefunds || 0).toFixed(2)}`;
+      document.getElementById('activeGateways').textContent = Object.keys(data.byGateway || {}).length;
+
+      const byGatewayEl = document.getElementById('byGateway');
+      const entries = Object.entries(data.byGateway || {});
+      if (entries.length === 0) {
+        byGatewayEl.innerHTML = '<p class="text-sm text-gray-500">No gateway data yet</p>';
+      } else {
+        byGatewayEl.innerHTML = entries.map(([gw, d]) => `
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-700">${gw}</span>
+            <span class="text-sm font-medium">${d.count} ($${d.amount.toFixed(2)})</span>
+          </div>
+        `).join('');
+      }
+    }
+
+    function renderGateways(gateways) {
+      const el = document.getElementById('gateways');
+      el.innerHTML = (gateways || []).map(gw => 
+        `<span class="text-xs bg-gray-100 rounded px-2 py-1">${gw.name}</span>`
+      ).join('');
+    }
+
+    function renderTransactions(transactions) {
+      const tbody = document.getElementById('transactions');
+      if (transactions.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">No transactions found</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = transactions.map(tx => `
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-4 text-sm font-medium text-gray-900">${tx.gateway}</td>
+          <td class="px-6 py-4 text-sm text-gray-600">$${tx.amount.toFixed(2)}</td>
+          <td class="px-6 py-4">
+            <span class="px-2 py-1 text-xs rounded-full ${statusColors[tx.status] || 'bg-gray-100'}">${tx.status}</span>
+          </td>
+          <td class="px-6 py-4 text-sm text-gray-600">${tx.customerEmail || '-'}</td>
+          <td class="px-6 py-4 text-sm text-gray-600">${new Date(tx.createdAt).toLocaleDateString()}</td>
+        </tr>
+      `).join('');
+    }
+
+    document.getElementById('filter').addEventListener('change', (e) => {
+      const filter = e.target.value;
+      const filtered = filter === 'all' ? allTransactions : allTransactions.filter(tx => tx.status === filter);
+      renderTransactions(filtered);
+    });
+
+    fetchData();
+  </script>
+</body>
+</html>

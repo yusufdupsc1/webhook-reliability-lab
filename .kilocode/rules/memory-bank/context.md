@@ -1,87 +1,105 @@
-# Active Context: Next.js Starter Template
+# Active Context: Payment Dashboard (PayNest)
 
 ## Current State
 
-**Template Status**: ✅ Ready for development
+**Project Status**: ✅ Complete - NestJS Payment Dashboard
 
-The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. It's ready for AI-assisted expansion to build any type of application.
+A production-ready NestJS + Supabase payment dashboard with 15+ payment gateway integrations.
 
 ## Recently Completed
 
-- [x] Base Next.js 16 setup with App Router
-- [x] TypeScript configuration with strict mode
-- [x] Tailwind CSS 4 integration
-- [x] ESLint configuration
-- [x] Memory bank documentation
-- [x] Recipe system for common features
+- [x] NestJS backend with TypeScript
+- [x] 15 Payment gateways (Stripe, PayPal, bKash, Nagad, Razorpay, SSLCommerz, Aamarpay, Paytm, PhonePe, UPI, Mercado Pago, Flutterwave, Paystack, Square, Adyen)
+- [x] Unified transaction dashboard with pagination and filtering
+- [x] Webhook receiver with signature verification per gateway
+- [x] Redis-based idempotency with 24-hour key expiration
+- [x] Retry logic with exponential backoff (max 5 retries)
+- [x] Transaction history & analytics
+- [x] Refund management with full/partial refund support
+- [x] PostgreSQL database with TypeORM
+- [x] Docker configuration (multi-stage build, docker-compose)
+- [x] Swagger API documentation at `/docs`
 
-## Current Structure
+## Architecture
 
-| File/Directory | Purpose | Status |
-|----------------|---------|--------|
-| `src/app/page.tsx` | Home page | ✅ Ready |
-| `src/app/layout.tsx` | Root layout | ✅ Ready |
-| `src/app/globals.css` | Global styles | ✅ Ready |
-| `.kilocode/` | AI context & recipes | ✅ Ready |
-
-## Current Focus
-
-The template is ready. Next steps depend on user requirements:
-
-1. What type of application to build
-2. What features are needed
-3. Design/branding preferences
-
-## Quick Start Guide
-
-### To add a new page:
-
-Create a file at `src/app/[route]/page.tsx`:
-```tsx
-export default function NewPage() {
-  return <div>New page content</div>;
-}
+```
+src/
+├── main.ts                    # Bootstrap
+├── app.module.ts              # Root module
+├── config/                    # Configuration
+│   ├── config.module.ts
+│   ├── redis.module.ts
+│   └── gateway.config.ts
+├── common/
+│   ├── types.ts              # Enums and interfaces
+│   ├── decorators/
+│   ├── filters/
+│   ├── interceptors/
+│   └── utils/
+├── gateways/                  # 15 Payment gateways
+│   ├── stripe/
+│   ├── paypal/
+│   ├── bkash/
+│   ├── nagad/
+│   ├── razorpay/
+│   └── ... (11 more)
+├── modules/
+│   ├── transactions/         # Payment initiation & listing
+│   ├── webhooks/            # Webhook processing
+│   ├── refunds/             # Refund operations
+│   ├── analytics/           # Dashboard analytics
+│   └── health/              # Health check
+├── docker/
+│   ├── Dockerfile
+│   └── docker-compose.yml
+└── supabase/migrations/     # Database schema
 ```
 
-### To add components:
+## API Endpoints
 
-Create `src/components/` directory and add components:
-```tsx
-// src/components/ui/Button.tsx
-export function Button({ children }: { children: React.ReactNode }) {
-  return <button className="px-4 py-2 bg-blue-600 text-white rounded">{children}</button>;
-}
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/v1/transactions/initiate` | Create payment |
+| GET | `/api/v1/transactions` | List transactions |
+| GET | `/api/v1/transactions/:id` | Get transaction |
+| POST | `/api/v1/transactions/:id/refund` | Create refund |
+| POST | `/webhooks/stripe` | Stripe webhook |
+| POST | `/webhooks/paypal` | PayPal webhook |
+| POST | `/webhooks/:gateway` | Generic webhook |
+| GET | `/api/v1/analytics/summary` | Dashboard summary |
+| GET | `/api/v1/analytics/trends` | Time-series data |
+| GET | `/api/v1/health` | Health check |
+
+## Database Tables
+
+- `transactions` - Payment transactions
+- `webhook_events` - Webhook event log
+- `refunds` - Refund records
+- `analytics_daily` - Daily aggregated stats
+
+## Environment Variables
+
+See `.env.example` for all required configuration.
+
+## Running
+
+```bash
+# Development
+bun install
+bun run start:dev
+
+# Production with Docker
+docker-compose -f docker/docker-compose.yml up -d
+
+# Type check
+bun run typecheck
+
+# Lint
+bun run lint
 ```
-
-### To add a database:
-
-Follow `.kilocode/recipes/add-database.md`
-
-### To add API routes:
-
-Create `src/app/api/[route]/route.ts`:
-```tsx
-import { NextResponse } from "next/server";
-
-export async function GET() {
-  return NextResponse.json({ message: "Hello" });
-}
-```
-
-## Available Recipes
-
-| Recipe | File | Use Case |
-|--------|------|----------|
-| Add Database | `.kilocode/recipes/add-database.md` | Data persistence with Drizzle + SQLite |
-
-## Pending Improvements
-
-- [ ] Add more recipes (auth, email, etc.)
-- [ ] Add example components
-- [ ] Add testing setup recipe
 
 ## Session History
 
 | Date | Changes |
 |------|---------|
-| Initial | Template created with base setup |
+| 2026-03-21 | Created payment dashboard with 15 gateway integrations |
