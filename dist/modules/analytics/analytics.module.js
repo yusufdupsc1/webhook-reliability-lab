@@ -13,12 +13,13 @@ const analytics_controller_1 = require("./analytics.controller");
 const analytics_service_1 = require("./analytics.service");
 const analytics_daily_entity_1 = require("./entities/analytics-daily.entity");
 const transactions_module_1 = require("../transactions/transactions.module");
+const gateway_module_1 = require("../../gateways/gateway.module");
 let AnalyticsModule = class AnalyticsModule {
 };
 exports.AnalyticsModule = AnalyticsModule;
 exports.AnalyticsModule = AnalyticsModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([analytics_daily_entity_1.AnalyticsDaily]), transactions_module_1.TransactionsModule],
+        imports: [typeorm_1.TypeOrmModule.forFeature([analytics_daily_entity_1.AnalyticsDaily]), transactions_module_1.TransactionsModule, gateway_module_1.GatewayModule],
         controllers: [analytics_controller_1.AnalyticsController],
         providers: [analytics_service_1.AnalyticsService],
         exports: [analytics_service_1.AnalyticsService],

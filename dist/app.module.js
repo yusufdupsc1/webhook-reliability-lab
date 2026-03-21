@@ -19,7 +19,6 @@ const refunds_module_1 = require("./modules/refunds/refunds.module");
 const analytics_module_1 = require("./modules/analytics/analytics.module");
 const health_module_1 = require("./modules/health/health.module");
 const gateway_module_1 = require("./gateways/gateway.module");
-const config_module_1 = require("./config/config.module");
 const redis_module_1 = require("./config/redis.module");
 const transaction_entity_1 = require("./modules/transactions/entities/transaction.entity");
 const webhook_event_entity_1 = require("./modules/webhooks/entities/webhook-event.entity");
@@ -50,13 +49,12 @@ exports.AppModule = AppModule = __decorate([
                     password: configService.get('DB_PASSWORD', 'postgres'),
                     database: configService.get('DB_DATABASE', 'payment_dashboard'),
                     entities: [transaction_entity_1.Transaction, webhook_event_entity_1.WebhookEvent, refund_entity_1.Refund, analytics_daily_entity_1.AnalyticsDaily],
-                    synchronize: configService.get('NODE_ENV') !== 'production',
-                    logging: configService.get('NODE_ENV') === 'development',
+                    synchronize: true,
+                    logging: false,
                 }),
                 inject: [config_1.ConfigService],
             }),
             redis_module_1.RedisModule,
-            config_module_1.AppConfigModule,
             gateway_module_1.GatewayModule,
             transactions_module_1.TransactionsModule,
             webhooks_module_1.WebhooksModule,

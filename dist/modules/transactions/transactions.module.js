@@ -13,12 +13,13 @@ const transactions_controller_1 = require("./transactions.controller");
 const transactions_service_1 = require("./transactions.service");
 const transaction_entity_1 = require("./entities/transaction.entity");
 const idempotency_service_1 = require("./idempotency.service");
+const gateway_module_1 = require("../../gateways/gateway.module");
 let TransactionsModule = class TransactionsModule {
 };
 exports.TransactionsModule = TransactionsModule;
 exports.TransactionsModule = TransactionsModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([transaction_entity_1.Transaction])],
+        imports: [typeorm_1.TypeOrmModule.forFeature([transaction_entity_1.Transaction]), gateway_module_1.GatewayModule],
         controllers: [transactions_controller_1.TransactionsController],
         providers: [transactions_service_1.TransactionsService, idempotency_service_1.IdempotencyService],
         exports: [transactions_service_1.TransactionsService],
