@@ -4,20 +4,10 @@ const core_1 = require("@nestjs/core");
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const app_module_1 = require("./app.module");
+const app_factory_1 = require("./app.factory");
 async function bootstrap() {
     const logger = new common_1.Logger('Bootstrap');
-    const app = await core_1.NestFactory.create(app_module_1.AppModule);
-    app.enableCors({
-        origin: '*',
-        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-        credentials: true,
-    });
-    app.useGlobalPipes(new common_1.ValidationPipe({
-        whitelist: true,
-        forbidNonWhitelisted: true,
-        transform: true,
-        transformOptions: { enableImplicitConversion: true },
-    }));
+    const app = (0, app_factory_1.configureApp)(await core_1.NestFactory.create(app_module_1.AppModule));
     const config = new swagger_1.DocumentBuilder()
         .setTitle('PayNest - Payment Dashboard API')
         .setDescription('Unified payment gateway orchestration API')

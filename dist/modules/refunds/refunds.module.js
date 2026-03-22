@@ -14,12 +14,13 @@ const refunds_service_1 = require("./refunds.service");
 const refund_entity_1 = require("./entities/refund.entity");
 const transactions_module_1 = require("../transactions/transactions.module");
 const gateway_module_1 = require("../../gateways/gateway.module");
+const audit_module_1 = require("../audit/audit.module");
 let RefundsModule = class RefundsModule {
 };
 exports.RefundsModule = RefundsModule;
 exports.RefundsModule = RefundsModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([refund_entity_1.Refund]), transactions_module_1.TransactionsModule, gateway_module_1.GatewayModule],
+        imports: [typeorm_1.TypeOrmModule.forFeature([refund_entity_1.Refund]), transactions_module_1.TransactionsModule, gateway_module_1.GatewayModule, audit_module_1.AuditModule],
         controllers: [refunds_controller_1.RefundsController],
         providers: [refunds_service_1.RefundsService],
         exports: [refunds_service_1.RefundsService],

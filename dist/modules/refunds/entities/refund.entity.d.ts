@@ -4,12 +4,12 @@ export declare class Refund {
     id: string;
     transactionId: string;
     transaction: Transaction;
-    externalRefundId: string;
+    externalRefundId: string | null;
     amount: number;
     status: RefundStatus;
-    reason: string;
-    metadata: Record<string, unknown>;
-    gatewayResponse: Record<string, unknown>;
+    reason: string | null;
+    metadata: Record<string, unknown> | null;
+    gatewayResponse: Record<string, unknown> | null;
     createdAt: Date;
-    processedAt: Date;
+    processedAt: Date | null;
 }

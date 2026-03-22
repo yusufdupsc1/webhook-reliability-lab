@@ -25,7 +25,7 @@ export class Refund {
   @JoinColumn({ name: 'transaction_id' })
   transaction!: Transaction;
 
-  @Column({ name: 'external_refund_id', nullable: true })
+  @Column({ name: 'external_refund_id', type: 'varchar', nullable: true })
   externalRefundId!: string | null;
 
   @Column({ type: 'decimal', precision: 15, scale: 2 })

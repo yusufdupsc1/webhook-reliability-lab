@@ -19,7 +19,6 @@ const sharedConfig: Config = {
   coverageDirectory: 'coverage',
   clearMocks: true,
   restoreMocks: true,
-  passWithNoTests: false,
 };
 
 const config: Config = {

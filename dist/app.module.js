@@ -18,12 +18,14 @@ const webhooks_module_1 = require("./modules/webhooks/webhooks.module");
 const refunds_module_1 = require("./modules/refunds/refunds.module");
 const analytics_module_1 = require("./modules/analytics/analytics.module");
 const health_module_1 = require("./modules/health/health.module");
+const audit_module_1 = require("./modules/audit/audit.module");
 const gateway_module_1 = require("./gateways/gateway.module");
 const redis_module_1 = require("./config/redis.module");
 const transaction_entity_1 = require("./modules/transactions/entities/transaction.entity");
 const webhook_event_entity_1 = require("./modules/webhooks/entities/webhook-event.entity");
 const refund_entity_1 = require("./modules/refunds/entities/refund.entity");
 const analytics_daily_entity_1 = require("./modules/analytics/entities/analytics-daily.entity");
+const audit_log_entity_1 = require("./modules/audit/entities/audit-log.entity");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -48,7 +50,7 @@ exports.AppModule = AppModule = __decorate([
                     username: configService.get('DB_USERNAME', 'postgres'),
                     password: configService.get('DB_PASSWORD', 'postgres'),
                     database: configService.get('DB_DATABASE', 'payment_dashboard'),
-                    entities: [transaction_entity_1.Transaction, webhook_event_entity_1.WebhookEvent, refund_entity_1.Refund, analytics_daily_entity_1.AnalyticsDaily],
+                    entities: [transaction_entity_1.Transaction, webhook_event_entity_1.WebhookEvent, refund_entity_1.Refund, analytics_daily_entity_1.AnalyticsDaily, audit_log_entity_1.AuditLog],
                     synchronize: true,
                     logging: false,
                 }),
@@ -56,6 +58,7 @@ exports.AppModule = AppModule = __decorate([
             }),
             redis_module_1.RedisModule,
             gateway_module_1.GatewayModule,
+            audit_module_1.AuditModule,
             transactions_module_1.TransactionsModule,
             webhooks_module_1.WebhooksModule,
             refunds_module_1.RefundsModule,

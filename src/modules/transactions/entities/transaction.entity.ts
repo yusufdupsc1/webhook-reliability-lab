@@ -17,7 +17,7 @@ export class Transaction {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'external_id', nullable: true })
+  @Column({ name: 'external_id', type: 'varchar', nullable: true })
   externalId: string;
 
   @Column({
@@ -40,13 +40,13 @@ export class Transaction {
   })
   status: TransactionStatus;
 
-  @Column({ name: 'customer_email', nullable: true })
+  @Column({ name: 'customer_email', type: 'varchar', nullable: true })
   customerEmail: string;
 
-  @Column({ name: 'customer_phone', nullable: true })
+  @Column({ name: 'customer_phone', type: 'varchar', nullable: true })
   customerPhone: string;
 
-  @Column({ name: 'customer_name', nullable: true })
+  @Column({ name: 'customer_name', type: 'varchar', nullable: true })
   customerName: string;
 
   @Column({ type: 'jsonb', nullable: true })
@@ -58,10 +58,10 @@ export class Transaction {
   @Column({ name: 'idempotency_key', unique: true })
   idempotencyKey: string;
 
-  @Column({ name: 'payment_url', nullable: true })
+  @Column({ name: 'payment_url', type: 'varchar', nullable: true })
   paymentUrl: string;
 
-  @Column({ name: 'return_url', nullable: true })
+  @Column({ name: 'return_url', type: 'varchar', nullable: true })
   returnUrl: string;
 
   @Column({ name: 'refunded_amount', type: 'decimal', precision: 15, scale: 2, default: 0 })

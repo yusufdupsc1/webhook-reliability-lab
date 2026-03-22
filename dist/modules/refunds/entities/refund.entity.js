@@ -30,8 +30,8 @@ __decorate([
     __metadata("design:type", transaction_entity_1.Transaction)
 ], Refund.prototype, "transaction", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'external_refund_id', nullable: true }),
-    __metadata("design:type", String)
+    (0, typeorm_1.Column)({ name: 'external_refund_id', type: 'varchar', nullable: true }),
+    __metadata("design:type", Object)
 ], Refund.prototype, "externalRefundId", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'decimal', precision: 15, scale: 2 }),
@@ -47,7 +47,7 @@ __decorate([
 ], Refund.prototype, "status", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'text', nullable: true }),
-    __metadata("design:type", String)
+    __metadata("design:type", Object)
 ], Refund.prototype, "reason", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'jsonb', nullable: true }),
@@ -63,7 +63,7 @@ __decorate([
 ], Refund.prototype, "createdAt", void 0);
 __decorate([
     (0, typeorm_1.Column)({ name: 'processed_at', type: 'timestamp', nullable: true }),
-    __metadata("design:type", Date)
+    __metadata("design:type", Object)
 ], Refund.prototype, "processedAt", void 0);
 exports.Refund = Refund = __decorate([
     (0, typeorm_1.Entity)('refunds'),

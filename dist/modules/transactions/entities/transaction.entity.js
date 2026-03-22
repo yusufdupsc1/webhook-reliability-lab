@@ -20,7 +20,7 @@ __decorate([
     __metadata("design:type", String)
 ], Transaction.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'external_id', nullable: true }),
+    (0, typeorm_1.Column)({ name: 'external_id', type: 'varchar', nullable: true }),
     __metadata("design:type", String)
 ], Transaction.prototype, "externalId", void 0);
 __decorate([
@@ -48,15 +48,15 @@ __decorate([
     __metadata("design:type", String)
 ], Transaction.prototype, "status", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'customer_email', nullable: true }),
+    (0, typeorm_1.Column)({ name: 'customer_email', type: 'varchar', nullable: true }),
     __metadata("design:type", String)
 ], Transaction.prototype, "customerEmail", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'customer_phone', nullable: true }),
+    (0, typeorm_1.Column)({ name: 'customer_phone', type: 'varchar', nullable: true }),
     __metadata("design:type", String)
 ], Transaction.prototype, "customerPhone", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'customer_name', nullable: true }),
+    (0, typeorm_1.Column)({ name: 'customer_name', type: 'varchar', nullable: true }),
     __metadata("design:type", String)
 ], Transaction.prototype, "customerName", void 0);
 __decorate([
@@ -72,11 +72,11 @@ __decorate([
     __metadata("design:type", String)
 ], Transaction.prototype, "idempotencyKey", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'payment_url', nullable: true }),
+    (0, typeorm_1.Column)({ name: 'payment_url', type: 'varchar', nullable: true }),
     __metadata("design:type", String)
 ], Transaction.prototype, "paymentUrl", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'return_url', nullable: true }),
+    (0, typeorm_1.Column)({ name: 'return_url', type: 'varchar', nullable: true }),
     __metadata("design:type", String)
 ], Transaction.prototype, "returnUrl", void 0);
 __decorate([

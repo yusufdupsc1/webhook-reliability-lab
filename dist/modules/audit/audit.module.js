@@ -6,18 +6,19 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.HealthModule = void 0;
+exports.AuditModule = void 0;
 const common_1 = require("@nestjs/common");
-const health_controller_1 = require("./health.controller");
-const gateway_module_1 = require("../../gateways/gateway.module");
-const webhooks_module_1 = require("../webhooks/webhooks.module");
-let HealthModule = class HealthModule {
+const typeorm_1 = require("@nestjs/typeorm");
+const audit_service_1 = require("./audit.service");
+const audit_log_entity_1 = require("./entities/audit-log.entity");
+let AuditModule = class AuditModule {
 };
-exports.HealthModule = HealthModule;
-exports.HealthModule = HealthModule = __decorate([
+exports.AuditModule = AuditModule;
+exports.AuditModule = AuditModule = __decorate([
     (0, common_1.Module)({
-        imports: [gateway_module_1.GatewayModule, webhooks_module_1.WebhooksModule],
-        controllers: [health_controller_1.HealthController],
+        imports: [typeorm_1.TypeOrmModule.forFeature([audit_log_entity_1.AuditLog])],
+        providers: [audit_service_1.AuditService],
+        exports: [audit_service_1.AuditService],
     })
-], HealthModule);
-//# sourceMappingURL=health.module.js.map
+], AuditModule);
+//# sourceMappingURL=audit.module.js.map

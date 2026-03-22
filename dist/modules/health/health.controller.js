@@ -13,16 +13,24 @@ exports.HealthController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const gateway_service_1 = require("../../gateways/gateway.service");
+const webhooks_service_1 = require("../webhooks/webhooks.service");
 let HealthController = class HealthController {
-    constructor(gatewayService) {
+    constructor(gatewayService, webhooksService) {
         this.gatewayService = gatewayService;
+        this.webhooksService = webhooksService;
     }
     async healthCheck() {
+        const backlog = await this.webhooksService.getBacklogSummary();
+        const reliability = await this.webhooksService.getReliabilitySummary();
         return {
             status: 'ok',
             timestamp: new Date().toISOString(),
             uptime: process.uptime(),
             gateways: this.gatewayService.getSupportedGateways(),
+            webhooks: {
+                backlog,
+                reliability,
+            },
         };
     }
     async listGateways() {
@@ -49,6 +57,7 @@ __decorate([
 exports.HealthController = HealthController = __decorate([
     (0, swagger_1.ApiTags)('health'),
     (0, common_1.Controller)('health'),
-    __metadata("design:paramtypes", [gateway_service_1.GatewayService])
+    __metadata("design:paramtypes", [gateway_service_1.GatewayService,
+        webhooks_service_1.WebhooksService])
 ], HealthController);
 //# sourceMappingURL=health.controller.js.map

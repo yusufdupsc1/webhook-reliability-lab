@@ -14,12 +14,13 @@ const webhooks_service_1 = require("./webhooks.service");
 const webhook_event_entity_1 = require("./entities/webhook-event.entity");
 const transactions_module_1 = require("../transactions/transactions.module");
 const gateway_module_1 = require("../../gateways/gateway.module");
+const audit_module_1 = require("../audit/audit.module");
 let WebhooksModule = class WebhooksModule {
 };
 exports.WebhooksModule = WebhooksModule;
 exports.WebhooksModule = WebhooksModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([webhook_event_entity_1.WebhookEvent]), transactions_module_1.TransactionsModule, gateway_module_1.GatewayModule],
+        imports: [typeorm_1.TypeOrmModule.forFeature([webhook_event_entity_1.WebhookEvent]), transactions_module_1.TransactionsModule, gateway_module_1.GatewayModule, audit_module_1.AuditModule],
         controllers: [webhooks_controller_1.WebhooksController],
         providers: [webhooks_service_1.WebhooksService],
         exports: [webhooks_service_1.WebhooksService],

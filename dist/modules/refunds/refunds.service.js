@@ -21,11 +21,13 @@ const refund_entity_1 = require("./entities/refund.entity");
 const transactions_service_1 = require("../transactions/transactions.service");
 const gateway_service_1 = require("../../gateways/gateway.service");
 const types_1 = require("../../common/types");
+const audit_service_1 = require("../audit/audit.service");
 let RefundsService = RefundsService_1 = class RefundsService {
-    constructor(refundRepository, transactionsService, gatewayService) {
+    constructor(refundRepository, transactionsService, gatewayService, auditService) {
         this.refundRepository = refundRepository;
         this.transactionsService = transactionsService;
         this.gatewayService = gatewayService;
+        this.auditService = auditService;
         this.logger = new common_1.Logger(RefundsService_1.name);
     }
     async createRefund(dto) {
@@ -48,15 +50,58 @@ let RefundsService = RefundsService_1 = class RefundsService {
             status: response.status === types_1.RefundStatus.COMPLETED ? types_1.RefundStatus.COMPLETED : types_1.RefundStatus.PENDING,
             reason: dto.reason,
             gatewayResponse: response,
+            processedAt: response.status === types_1.RefundStatus.COMPLETED ? new Date() : null,
         });
         const savedRefund = await this.refundRepository.save(refund);
+        await this.auditService.recordEntry({
+            entityType: types_1.AuditEntityType.REFUND,
+            entityId: savedRefund.id,
+            transactionId: transaction.id,
+            refundId: savedRefund.id,
+            gateway: transaction.gateway,
+            action: types_1.AuditActionType.REFUND_CREATED,
+            previousStatus: null,
+            nextStatus: savedRefund.status,
+            source: 'refunds.createRefund',
+            metadata: {
+                amount: savedRefund.amount,
+                reason: savedRefund.reason,
+                externalRefundId: savedRefund.externalRefundId,
+            },
+        });
+        if (savedRefund.status !== types_1.RefundStatus.PENDING) {
+            await this.auditService.recordEntry({
+                entityType: types_1.AuditEntityType.REFUND,
+                entityId: savedRefund.id,
+                transactionId: transaction.id,
+                refundId: savedRefund.id,
+                gateway: transaction.gateway,
+                action: types_1.AuditActionType.REFUND_STATUS_CHANGED,
+                previousStatus: types_1.RefundStatus.PENDING,
+                nextStatus: savedRefund.status,
+                source: 'refunds.createRefund',
+                metadata: {
+                    amount: savedRefund.amount,
+                    externalRefundId: savedRefund.externalRefundId,
+                    gatewayResponse: savedRefund.gatewayResponse,
+                },
+            });
+        }
         if (response.success) {
             await this.transactionsService.updateRefundAmount(transaction.id, dto.amount);
             if (dto.amount === availableAmount) {
-                await this.transactionsService.updateStatus(transaction.id, types_1.TransactionStatus.REFUNDED);
+                await this.transactionsService.updateStatus(transaction.id, types_1.TransactionStatus.REFUNDED, undefined, 'refunds.createRefund', {
+                    refundId: savedRefund.id,
+                    refundAmount: dto.amount,
+                    refundStatus: savedRefund.status,
+                });
             }
             else {
-                await this.transactionsService.updateStatus(transaction.id, types_1.TransactionStatus.PARTIALLY_REFUNDED);
+                await this.transactionsService.updateStatus(transaction.id, types_1.TransactionStatus.PARTIALLY_REFUNDED, undefined, 'refunds.createRefund', {
+                    refundId: savedRefund.id,
+                    refundAmount: dto.amount,
+                    refundStatus: savedRefund.status,
+                });
             }
         }
         return savedRefund;
@@ -106,6 +151,7 @@ exports.RefundsService = RefundsService = RefundsService_1 = __decorate([
     __param(0, (0, typeorm_1.InjectRepository)(refund_entity_1.Refund)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
         transactions_service_1.TransactionsService,
-        gateway_service_1.GatewayService])
+        gateway_service_1.GatewayService,
+        audit_service_1.AuditService])
 ], RefundsService);
 //# sourceMappingURL=refunds.service.js.map

@@ -2,6 +2,7 @@ import { Repository } from 'typeorm';
 import { Refund } from './entities/refund.entity';
 import { TransactionsService } from '../transactions/transactions.service';
 import { GatewayService } from '../../gateways/gateway.service';
+import { AuditService } from '../audit/audit.service';
 export interface CreateRefundDto {
     transactionId: string;
     amount: number;
@@ -11,8 +12,9 @@ export declare class RefundsService {
     private readonly refundRepository;
     private readonly transactionsService;
     private readonly gatewayService;
+    private readonly auditService;
     private readonly logger;
-    constructor(refundRepository: Repository<Refund>, transactionsService: TransactionsService, gatewayService: GatewayService);
+    constructor(refundRepository: Repository<Refund>, transactionsService: TransactionsService, gatewayService: GatewayService, auditService: AuditService);
     createRefund(dto: CreateRefundDto): Promise<Refund>;
     findAll(page?: number, limit?: number): Promise<{
         data: Refund[];

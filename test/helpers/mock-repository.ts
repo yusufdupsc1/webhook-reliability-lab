@@ -12,11 +12,11 @@ export function createMockRepository<T extends object>(): MockRepository<T> {
   return {
     create: jest.fn((entity?: Partial<T>) => ({ ...(entity || {}) }) as T),
     save: jest.fn(async (entity: T) => entity),
-    findOne: jest.fn(async () => null),
-    find: jest.fn(async () => []),
-    findAndCount: jest.fn(async () => [[], 0]),
-    count: jest.fn(async () => 0),
-    increment: jest.fn(async () => undefined),
+    findOne: jest.fn(async (_options: unknown) => null),
+    find: jest.fn(async (_options?: unknown) => []),
+    findAndCount: jest.fn(async (_options?: unknown) => [[], 0] as [T[], number]),
+    count: jest.fn(async (_options?: unknown) => 0),
+    increment: jest.fn(async (_criteria: unknown, _property: string, _value: number) => {}),
   };
 }
 

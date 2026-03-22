@@ -20,11 +20,14 @@ const typeorm_2 = require("typeorm");
 const transaction_entity_1 = require("./entities/transaction.entity");
 const gateway_service_1 = require("../../gateways/gateway.service");
 const idempotency_service_1 = require("./idempotency.service");
+const types_1 = require("../../common/types");
+const audit_service_1 = require("../audit/audit.service");
 let TransactionsService = TransactionsService_1 = class TransactionsService {
-    constructor(transactionRepository, gatewayService, idempotencyService) {
+    constructor(transactionRepository, gatewayService, idempotencyService, auditService) {
         this.transactionRepository = transactionRepository;
         this.gatewayService = gatewayService;
         this.idempotencyService = idempotencyService;
+        this.auditService = auditService;
         this.logger = new common_1.Logger(TransactionsService_1.name);
     }
     async createPayment(dto) {
@@ -54,6 +57,22 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
         });
         const savedTransaction = await this.transactionRepository.save(transaction);
         await this.idempotencyService.store(dto.idempotencyKey, savedTransaction.id);
+        await this.auditService.recordEntry({
+            entityType: types_1.AuditEntityType.TRANSACTION,
+            entityId: savedTransaction.id,
+            transactionId: savedTransaction.id,
+            gateway: savedTransaction.gateway,
+            action: types_1.AuditActionType.TRANSACTION_CREATED,
+            previousStatus: null,
+            nextStatus: savedTransaction.status,
+            source: 'transactions.createPayment',
+            metadata: {
+                externalId: savedTransaction.externalId,
+                amount: savedTransaction.amount,
+                currency: savedTransaction.currency,
+                idempotencyKey: savedTransaction.idempotencyKey,
+            },
+        });
         return savedTransaction;
     }
     async findAll(filters, page = 1, limit = 20) {
@@ -78,14 +97,32 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
     async findByExternalId(externalId, gateway) {
         return this.transactionRepository.findOne({ where: { externalId, gateway } });
     }
-    async updateStatus(id, status, gatewayResponse) {
+    async updateStatus(id, status, gatewayResponse, source = 'transactions.updateStatus', metadata) {
         const transaction = await this.findOne(id);
         if (!transaction)
             return null;
+        const previousStatus = transaction.status;
         transaction.status = status;
         if (gatewayResponse)
             transaction.gatewayResponse = gatewayResponse;
-        return this.transactionRepository.save(transaction);
+        const savedTransaction = await this.transactionRepository.save(transaction);
+        if (previousStatus !== status) {
+            await this.auditService.recordEntry({
+                entityType: types_1.AuditEntityType.TRANSACTION,
+                entityId: savedTransaction.id,
+                transactionId: savedTransaction.id,
+                gateway: savedTransaction.gateway,
+                action: types_1.AuditActionType.TRANSACTION_STATUS_CHANGED,
+                previousStatus,
+                nextStatus: status,
+                source,
+                metadata: {
+                    ...(metadata || {}),
+                    gatewayResponse,
+                },
+            });
+        }
+        return savedTransaction;
     }
     async updateRefundAmount(id, refundedAmount) {
         await this.transactionRepository.increment({ id }, 'refundedAmount', refundedAmount);
@@ -123,6 +160,7 @@ exports.TransactionsService = TransactionsService = TransactionsService_1 = __de
     __param(0, (0, typeorm_1.InjectRepository)(transaction_entity_1.Transaction)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
         gateway_service_1.GatewayService,
-        idempotency_service_1.IdempotencyService])
+        idempotency_service_1.IdempotencyService,
+        audit_service_1.AuditService])
 ], TransactionsService);
 //# sourceMappingURL=transactions.service.js.map

@@ -49,10 +49,10 @@ describe('RefundsService integration', () => {
     gatewayService.createRefund.mockResolvedValue(canonicalRefundGatewayResponse);
     refundRepository.create.mockImplementation((entity) => ({ ...entity }) as Refund);
     refundRepository.save.mockImplementation(async (refund) => ({
-      id: 'refund-001',
-      createdAt: new Date('2026-03-21T12:05:00.000Z'),
-      metadata: null,
       ...refund,
+      id: refund.id ?? 'refund-001',
+      createdAt: refund.createdAt ?? new Date('2026-03-21T12:05:00.000Z'),
+      metadata: refund.metadata ?? null,
     }) as Refund);
 
     const refund = await service.createRefund(canonicalRefundRequest);

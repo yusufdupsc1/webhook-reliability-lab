@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GatewayType = exports.RefundStatus = exports.TransactionStatus = void 0;
+exports.AuditActionType = exports.AuditEntityType = exports.WebhookSignatureStatus = exports.WebhookProcessingStatus = exports.GatewayType = exports.RefundStatus = exports.TransactionStatus = void 0;
 var TransactionStatus;
 (function (TransactionStatus) {
     TransactionStatus["PENDING"] = "pending";
@@ -34,4 +34,34 @@ var GatewayType;
     GatewayType["SQUARE"] = "square";
     GatewayType["ADYEN"] = "adyen";
 })(GatewayType || (exports.GatewayType = GatewayType = {}));
+var WebhookProcessingStatus;
+(function (WebhookProcessingStatus) {
+    WebhookProcessingStatus["RECEIVED"] = "received";
+    WebhookProcessingStatus["PROCESSING"] = "processing";
+    WebhookProcessingStatus["PROCESSED"] = "processed";
+    WebhookProcessingStatus["FAILED"] = "failed";
+    WebhookProcessingStatus["INVALID_SIGNATURE"] = "invalid_signature";
+    WebhookProcessingStatus["DUPLICATE"] = "duplicate";
+})(WebhookProcessingStatus || (exports.WebhookProcessingStatus = WebhookProcessingStatus = {}));
+var WebhookSignatureStatus;
+(function (WebhookSignatureStatus) {
+    WebhookSignatureStatus["PENDING"] = "pending";
+    WebhookSignatureStatus["VALID"] = "valid";
+    WebhookSignatureStatus["INVALID"] = "invalid";
+    WebhookSignatureStatus["NOT_APPLICABLE"] = "not_applicable";
+})(WebhookSignatureStatus || (exports.WebhookSignatureStatus = WebhookSignatureStatus = {}));
+var AuditEntityType;
+(function (AuditEntityType) {
+    AuditEntityType["TRANSACTION"] = "transaction";
+    AuditEntityType["REFUND"] = "refund";
+    AuditEntityType["WEBHOOK_EVENT"] = "webhook_event";
+})(AuditEntityType || (exports.AuditEntityType = AuditEntityType = {}));
+var AuditActionType;
+(function (AuditActionType) {
+    AuditActionType["TRANSACTION_CREATED"] = "transaction_created";
+    AuditActionType["TRANSACTION_STATUS_CHANGED"] = "transaction_status_changed";
+    AuditActionType["REFUND_CREATED"] = "refund_created";
+    AuditActionType["REFUND_STATUS_CHANGED"] = "refund_status_changed";
+    AuditActionType["WEBHOOK_REPLAY_ATTEMPTED"] = "webhook_replay_attempted";
+})(AuditActionType || (exports.AuditActionType = AuditActionType = {}));
 //# sourceMappingURL=types.js.map

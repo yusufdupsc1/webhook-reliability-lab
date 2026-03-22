@@ -34,7 +34,12 @@ export class WebhookEvent {
   @Column({ name: 'event_type' })
   eventType!: string;
 
-  @Column({ name: 'normalized_event_key', nullable: true, length: 512 })
+  @Column({
+    name: 'normalized_event_key',
+    type: 'varchar',
+    nullable: true,
+    length: 512,
+  })
   normalizedEventKey!: string | null;
 
   @Column({ type: 'jsonb' })
@@ -64,7 +69,7 @@ export class WebhookEvent {
   @Column({ name: 'signature_valid', type: 'boolean', nullable: true })
   signatureValid!: boolean | null;
 
-  @Column({ name: 'duplicate_of_event_id', nullable: true })
+  @Column({ name: 'duplicate_of_event_id', type: 'varchar', nullable: true })
   duplicateOfEventId!: string | null;
 
   @Column({ name: 'received_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

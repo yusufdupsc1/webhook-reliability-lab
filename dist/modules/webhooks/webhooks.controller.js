@@ -26,34 +26,73 @@ let WebhooksController = class WebhooksController {
             throw new common_1.BadRequestException('Missing stripe-signature header');
         }
         const rawBody = typeof body === 'string' ? body : JSON.stringify(body);
-        const result = await this.webhooksService.processWebhook(types_1.GatewayType.STRIPE, rawBody, request.headers);
+        const result = await this.webhooksService.processWebhook({
+            gateway: types_1.GatewayType.STRIPE,
+            payload: rawBody,
+            headers: request.headers,
+        });
         return { received: result.success };
     }
     async handlePayPalWebhook(body, request) {
-        const result = await this.webhooksService.processWebhook(types_1.GatewayType.PAYPAL, body, request.headers);
+        const result = await this.webhooksService.processWebhook({
+            gateway: types_1.GatewayType.PAYPAL,
+            payload: body,
+            headers: request.headers,
+        });
         return { received: result.success };
     }
     async handleRazorpayWebhook(body, signature, request) {
         if (!signature) {
             throw new common_1.BadRequestException('Missing x-razorpay-signature header');
         }
-        const result = await this.webhooksService.processWebhook(types_1.GatewayType.RAZORPAY, body, request.headers);
+        const result = await this.webhooksService.processWebhook({
+            gateway: types_1.GatewayType.RAZORPAY,
+            payload: body,
+            headers: request.headers,
+        });
         return { received: result.success };
     }
     async handleBkashWebhook(body, request) {
-        const result = await this.webhooksService.processWebhook(types_1.GatewayType.BKASH, body, request.headers);
+        const result = await this.webhooksService.processWebhook({
+            gateway: types_1.GatewayType.BKASH,
+            payload: body,
+            headers: request.headers,
+        });
         return { received: result.success };
     }
     async handleNagadWebhook(body, request) {
-        const result = await this.webhooksService.processWebhook(types_1.GatewayType.NAGAD, body, request.headers);
+        const result = await this.webhooksService.processWebhook({
+            gateway: types_1.GatewayType.NAGAD,
+            payload: body,
+            headers: request.headers,
+        });
         return { received: result.success };
+    }
+    async replayWebhook(id, body) {
+        return this.webhooksService.replayWebhook(id, body?.reason);
     }
     async handleGenericWebhook(gateway, body, request) {
-        const result = await this.webhooksService.processWebhook(gateway, body, request.headers);
+        const result = await this.webhooksService.processWebhook({
+            gateway,
+            payload: body,
+            headers: request.headers,
+        });
         return { received: result.success };
     }
-    async listWebhooks(page, limit) {
-        return this.webhooksService.findAll(page || 1, limit || 20);
+    async listWebhooks(page, limit, gateway, status, signatureStatus, replayable) {
+        return this.webhooksService.findAll(page || 1, limit || 20, {
+            gateway,
+            status,
+            signatureStatus,
+            replayable,
+        });
+    }
+    async getWebhook(id) {
+        const event = await this.webhooksService.findOne(id);
+        if (!event) {
+            throw new common_1.NotFoundException(`Webhook event ${id} not found`);
+        }
+        return event;
     }
     async retryWebhook(id) {
         return this.webhooksService.retryWebhook(id);
@@ -120,6 +159,18 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], WebhooksController.prototype, "handleNagadWebhook", null);
 __decorate([
+    (0, common_1.Post)('admin/:id/replay'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiOperation)({ summary: 'Replay a stored webhook event' }),
+    (0, swagger_1.ApiParam)({ name: 'id', description: 'Webhook event ID' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Replay result' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], WebhooksController.prototype, "replayWebhook", null);
+__decorate([
     (0, common_1.Post)(':gateway'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Handle generic gateway webhook' }),
@@ -136,12 +187,33 @@ __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'List webhook events' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'List of webhook events' }),
+    (0, swagger_1.ApiQuery)({ name: 'page', required: false, type: Number }),
+    (0, swagger_1.ApiQuery)({ name: 'limit', required: false, type: Number }),
+    (0, swagger_1.ApiQuery)({ name: 'gateway', required: false, enum: types_1.GatewayType }),
+    (0, swagger_1.ApiQuery)({ name: 'status', required: false, enum: types_1.WebhookProcessingStatus }),
+    (0, swagger_1.ApiQuery)({ name: 'signatureStatus', required: false, enum: types_1.WebhookSignatureStatus }),
+    (0, swagger_1.ApiQuery)({ name: 'replayable', required: false, type: Boolean }),
     __param(0, (0, common_1.Query)('page')),
     __param(1, (0, common_1.Query)('limit')),
+    __param(2, (0, common_1.Query)('gateway')),
+    __param(3, (0, common_1.Query)('status')),
+    __param(4, (0, common_1.Query)('signatureStatus')),
+    __param(5, (0, common_1.Query)('replayable')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number]),
+    __metadata("design:paramtypes", [Number, Number, String, String, String, Boolean]),
     __metadata("design:returntype", Promise)
 ], WebhooksController.prototype, "listWebhooks", null);
+__decorate([
+    (0, common_1.Get)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get stored webhook event details' }),
+    (0, swagger_1.ApiParam)({ name: 'id', description: 'Webhook event ID' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Webhook event details' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Webhook event not found' }),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], WebhooksController.prototype, "getWebhook", null);
 __decorate([
     (0, common_1.Post)('retry/:id'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
